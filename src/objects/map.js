@@ -1,0 +1,3 @@
+MysteryMeat.Map = function (mapString) {
+
+};
