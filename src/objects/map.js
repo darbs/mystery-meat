@@ -1,3 +1,0 @@
-MysteryMeat.Map = function (mapString) {
-
-};

@@ -1,1 +1,0 @@
-var MysteryMeat = MysteryMeat || {};

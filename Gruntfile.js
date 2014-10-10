@@ -2,30 +2,10 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        concat: {
-            options: {
-                separator: ';'
-            },
-            dist: {
-                src: ['src/**/*.js'],
-                dest: 'dist/<%= pkg.name %>.js'
-            }
-        },
-        uglify: {
-            options: {
-                banner: '/*! <%= pkg.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
-            },
-            dist: {
-                files: {
-                    'dist/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
-                }
-            }
-        },
         mochaTest: {
             test: {
                 options: {
-                    reporter: 'spec',
-                    captureFile: 'results.txt', // Optionally capture the reporter output to a file
+                    reporter: 'nyan',
                     quiet: false // Optionally suppress output to standard out (defaults to false)
                 },
                 src: ['test/**/*.js']
@@ -57,7 +37,7 @@ module.exports = function(grunt) {
 
 
     grunt.registerTask('test', ['jshint', 'mochaTest']);
-    grunt.registerTask('default', ['jshint', 'mochaTest', 'concat', 'uglify']);
+    grunt.registerTask('default', ['jshint', 'mochaTest']);
 
     // TODO
     //grunt.registerTask('train', []);
