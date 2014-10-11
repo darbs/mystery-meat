@@ -16,7 +16,8 @@
     "grunt-contrib-watch": "~0.5.3",
     "grunt-jsdoc": "^0.5.4",
     "grunt-mocha-test": "^0.12.1",
-    "mocha": "^1.21.4"
+    "mocha": "^1.21.4",
+    "should": "^4.0.4"
   },
   "dependencies": {
     "vindinium-client": "^2.0.1"

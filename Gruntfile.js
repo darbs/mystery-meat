@@ -6,7 +6,7 @@ module.exports = function(grunt) {
             test: {
                 options: {
                     reporter: 'nyan',
-                    quiet: false // Optionally suppress output to standard out (defaults to false)
+                    quiet: false
                 },
                 src: ['test/**/*.js']
             }
@@ -14,7 +14,6 @@ module.exports = function(grunt) {
         jshint: {
             files: ['Gruntfile.js', 'src/**/*.js', 'test/**/*.js'],
             options: {
-                // options here to override JSHint defaults
                 globals: {
                     jQuery: true,
                     console: true,
