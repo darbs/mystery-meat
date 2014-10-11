@@ -1,5 +1,5 @@
 /**
- * Example maps used for testing copied from http://vindinium.org/starters
+ * Example used for testing copied from http://vindinium.org/starters
  *
  * More maps available at https://github.com/ornicar/vindinium/blob/master/app/Maps.scala
  */

@@ -1,8 +1,7 @@
 module.exports = function (game) {
 
-
     /**
-     *
+     * Creates a mapping between heroes
      * @param heroes
      * @returns {{}}
      */
@@ -16,7 +15,7 @@ module.exports = function (game) {
     }
 
     /**
-     *
+     * Creates  a traversal map for the bot where valid moves are not false
      * @param board
      * @returns {Array}
      */
