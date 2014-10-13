@@ -1,5 +1,5 @@
 var dirs = 'nesw';
-var EnvParser = require('./parsers/env-parser.js');
+var EnvParser = require('./src/parsers/env-parser.js');
 
 
 function bot (state, callback) {
