@@ -115,14 +115,14 @@ var state = {
 
 var assert = require("assert"),
     should = require('should'),
-    EnvParser = require("../parsers/env-parser.js");
+    EnvParser = require("../src/parsers/env-parser.js");
 
 describe('map parsing', function () {
 
     var env, map;
 
     before(function(){
-        env = EnvParser(state.game);
+        env = EnvParser(state);
         map = env.map();
     });
 
@@ -130,13 +130,22 @@ describe('map parsing', function () {
         assert.equal(map.length, state.game.board.size);
     });
 
-    it('should associates heroes correctly', function () {
-        var obj = {"type":"hero","key":"@3"};
+    it('should associates heroes from legend correctly', function () {
+        var hero = state.game.heroes[2],
+            player = map[hero.pos.x][hero.pos.y];
 
-        var pos = state.game.heroes[2].pos,
-            player = map[pos.x][pos.y];
+        (player.id).should.eql(hero.id);
+    });
 
-        (player).should.eql(obj);
-        (env.hero(obj.key)).should.eql(state.game.heroes[2]);
+    it('retreives the correct hero', function () {
+        (env.heroes('@3').id).should.eql(3);
+    });
+
+    it('associates mines from legend correctly', function () {
+        (env.heroes('@4').mines.length).should.eql(6);
+    });
+
+    it('should return me', function () {
+        (env.hero()).should.eql(env.heroes('@4'));
     });
 });

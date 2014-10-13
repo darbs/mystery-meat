@@ -3,8 +3,8 @@ var EnvParser = require('./parsers/env-parser.js');
 
 
 function bot (state, callback) {
-    var env = EnvParser(state.game);
-    console.log(env.map(), env.heroes());
+    var env = EnvParser(state);
+//    console.log(env.map(), env.heroes());
 
     var i = Math.floor(Math.random() * 4);
     var dir = dirs[i];
