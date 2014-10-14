@@ -1,10 +1,14 @@
-var dirs = 'nesw';
-var EnvParser = require('./src/parsers/env-parser.js');
+var dirs = 'nesw',
+    env,
+    Environment = require('./src/parsers/env-parser.js');
 
 
 function bot (state, callback) {
-    var env = EnvParser(state);
-//    console.log(env.map(), env.heroes());
+    if (state.game.turn === 0) {
+        env = new Environment(state);
+    } else {
+        env.update(state);
+    }
 
     var i = Math.floor(Math.random() * 4);
     var dir = dirs[i];

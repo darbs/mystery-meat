@@ -3,10 +3,7 @@ var Hero = require('../hero.js'),
     Tavern = require('../tavern.js'),
     _ = require('underscore');
 
-module.exports = function (state) {
-
-    // My hero
-    var me;
+module.exports = (function () {
 
     /**
      * Creates a mapping between heroes
@@ -16,13 +13,7 @@ module.exports = function (state) {
     function heroParser(heroes) {
         var _heroes = {};
         for (var i = 0; i < heroes.length; i++) {
-            var hero = new Hero(heroes[i]);
-
-            if (heroes[i].id === state.hero.id) {
-                me = hero;
-            }
-
-            _heroes["@" + heroes[i].id] = hero;
+            _heroes["@" + heroes[i].id] = new Hero(heroes[i]);
         }
         return _heroes;
     }
@@ -32,7 +23,7 @@ module.exports = function (state) {
      * @param board
      * @returns {Array}
      */
-    function mapParser(board) {
+    function mapParser(board, heroes) {
         var _map = [],
             _size = board.size * 2,
             _legend = {
@@ -58,7 +49,7 @@ module.exports = function (state) {
 
             for (var j = 0; j < line.length; j += 2) {
                 var legend = _legend[line.slice(j, j + 2)];
-                parsed.push(processLegend(legend, i, j));
+                parsed.push(processLegend(legend, i, j, heroes));
             }
 
             __map.push(line);
@@ -73,7 +64,7 @@ module.exports = function (state) {
         return _map;
     }
 
-    function processLegend(legend, x, y) {
+    function processLegend(legend, x, y, heroes) {
         var key;
         switch (legend.type) {
             case "hero":
@@ -117,23 +108,45 @@ module.exports = function (state) {
         console.log(str);
     }
 
-    // init
-    var heroes = heroParser(state.game.heroes),
-        map = mapParser(state.game.board);
+    function Environment(state) {
+        this._heroes = heroParser(state.game.heroes);
+        this._map = mapParser(state.game.board, this._heroes);
+        this._me = this._heroes["@" + state.hero.id];
+    }
 
-    return {
-        map: function () {
-            return map;
-        },
-        heroes: function (key) {
-            if (key) {
-                return heroes[key];
-            } else {
-                return heroes;
-            }
-        },
-        hero: function () {
-            return me;
+    Environment.prototype.map = function () {
+        return this._map;
+    };
+
+    Environment.prototype.heroes = function (key) {
+        if (key) {
+            return this._heroes[key];
+        } else {
+            return this._heroes;
         }
     };
-};
+
+    Environment.prototype.hero = function () {
+        return this._me;
+    };
+
+    Environment.prototype.updateHeroes = function (heroes) {
+        for (var i = 0; i < heroes.length; i++) {
+            console.log(heroes[i].pos, this._heroes["@" + heroes[i].id].pos);
+            if (!(_.isEqual(heroes[i].pos, this._heroes["@" + heroes[i].id].pos))) {
+                console.log("NEED UPDATE");
+            }
+        }
+    };
+
+    Environment.prototype.updateBoard = function (board) {
+
+    };
+
+    Environment.prototype.update = function (state) {
+        this.updateHeroes(state.game.heroes);
+        this.updateBoard(state.game.board);
+    };
+
+    return Environment;
+})();
