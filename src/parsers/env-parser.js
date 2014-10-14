@@ -132,9 +132,11 @@ module.exports = (function () {
 
     Environment.prototype.updateHeroes = function (heroes) {
         for (var i = 0; i < heroes.length; i++) {
-            console.log(heroes[i].pos, this._heroes["@" + heroes[i].id].pos);
             if (!(_.isEqual(heroes[i].pos, this._heroes["@" + heroes[i].id].pos))) {
-                console.log("NEED UPDATE");
+                var pos = this._heroes["@" + heroes[i].id].pos;
+                this._map[pos.x][pos.y] = true;
+                this._map[heroes[i].pos.x][heroes[i].pos.y] = this._heroes["@" + heroes[i].id];
+                //console.log("NEED UPDATE");
             }
         }
     };
@@ -146,6 +148,7 @@ module.exports = (function () {
     Environment.prototype.update = function (state) {
         this.updateHeroes(state.game.heroes);
         this.updateBoard(state.game.board);
+        printMap(this._map);
     };
 
     return Environment;
