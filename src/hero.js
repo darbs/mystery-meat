@@ -1,5 +1,6 @@
 var _ = require('underscore');
 
+// TODO weight function
 module.exports = (function () {
 
     function Hero (object) {

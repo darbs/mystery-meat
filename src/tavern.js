@@ -1,5 +1,6 @@
 var _ = require('underscore');
 
+// TODO figure out weight function
 module.exports = (function () {
 
     function Tavern(object) {

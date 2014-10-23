@@ -27,6 +27,7 @@ module.exports = (function () {
         console.log(str);
     }
 
+    // TODO refactor graph into state class
     function Environment(state) {
         this._graph = new Graph({ directed: false, compound: false, multigraph: true });
         this._heroes = this._parseHeroes(state.game.heroes);

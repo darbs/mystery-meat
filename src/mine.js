@@ -1,5 +1,6 @@
 var _ = require('underscore');
 
+// TODO calc weight on instantiation
 module.exports = (function () {
 
     function Mine(object) {
