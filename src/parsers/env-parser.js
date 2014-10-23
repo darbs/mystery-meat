@@ -112,6 +112,7 @@ module.exports = (function () {
         switch (legend.type) {
             case "hero":
                 key = heroes[legend.key];
+                this._addToGraph(x, y, key);
                 break;
             case "mine":
                 key = new Mine({x: x, y: y});
@@ -119,14 +120,15 @@ module.exports = (function () {
                     heroes[legend.key].addMine(key);
                     key.setOwner(heroes[legend.key]);
                 }
+                this._addToGraph(x, y, key);
                 break;
             case "tavern":
                 key = new Tavern({x: x, y: y});
-                this._addToGraph(x,y , key);
+                this._addToGraph(x, y, key);
                 break;
             case "space":
                 key = true;
-                this._addToGraph(x,y, {weight: 0.0});
+                this._addToGraph(x, y, {weight: 0.0});
                 break;
             case "wall":
                 key = false;
