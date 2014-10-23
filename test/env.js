@@ -115,23 +115,28 @@ var state = {
 
 var assert = require("assert"),
     should = require('should'),
-    Environment = require("../src/parsers/env-parser.js");
+    Environment = require("../src/parsers/env-parser.js"),
+    Graph = require("graphlib").Graph;
 
-describe('map parsing', function () {
+describe('Environment', function () {
 
-    var env = new Environment(state), map;
-
-    before(function () {
-        map = env.map();
-    });
+    var env = new Environment(state), map,
+        edges = [
+            { v: '1:2', w: '2:1' },
+            { v: '1:2', w: '2:2' },
+            { v: '2:1', w: '2:2' },
+            { v: '2:2', w: '3:2' },
+            { v: '2:3', w: '3:2' },
+            { v: '2:2', w: '2:3' }
+        ];
 
     it('should parse the map size correctly', function () {
-        assert.equal(map.length, state.game.board.size);
+        assert.equal(env._map.length, state.game.board.size);
     });
 
     it('should associates heroes from legend correctly', function () {
         var hero = state.game.heroes[2],
-            player = map[hero.pos.x][hero.pos.y];
+            player = env._map[hero.pos.x][hero.pos.y];
 
         (player.id).should.eql(hero.id);
     });
@@ -144,7 +149,33 @@ describe('map parsing', function () {
         (env.heroes('@4').mines.length).should.eql(6);
     });
 
-    it('should return me', function () {
-        (env.hero()).should.eql(env.heroes('@4'));
+    describe('graph generation', function () {
+
+        before(function () {
+            env._graph = new Graph({ directed: false, compound: false, multigraph: true });
+            env._parseMap({
+                "size": 5,
+                "tiles":
+                    "##########" +
+                    "####  ####" +
+                    "##      ##" +
+                    "####  ####" +
+                    "##########"
+            });
+        });
+
+        it('generates the correct number of edges', function () {
+            (env._graph.edges().length).should.eql(4);
+        });
+
+        it('generates the correct edges', function () {
+            assert.deepEqual(env._graph.edges(), [
+                { v: '1:2', w: '2:2' },
+                { v: '2:1', w: '2:2' },
+                { v: '2:2', w: '3:2' },
+                { v: '2:2', w: '2:3' }
+            ]);
+        });
+
     });
 });

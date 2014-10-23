@@ -17,6 +17,7 @@
     "grunt-jsdoc": "^0.5.4",
     "grunt-mocha-test": "^0.12.1",
     "mocha": "^1.21.4",
+    "npm-graph": "^0.4.0",
     "should": "^4.0.4"
   },
   "dependencies": {

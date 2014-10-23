@@ -1,29 +1,70 @@
 var Hero = require('../hero.js'),
     Mine = require('../mine.js'),
     Tavern = require('../tavern.js'),
-    _ = require('underscore');
+    _ = require('underscore'),
+    Graph = require("graphlib").Graph;
 
 module.exports = (function () {
 
-    /**
-     * Creates a mapping between heroes
-     * @param heroes
-     * @returns {{}}
-     */
-    function heroParser(heroes) {
+    var MAX_STEPS = 7,
+        DEBUG = true,
+        previous, current;
+
+    function printMap(map) {
+        var str = '';
+        for (var x = 0; x < map.length; x++) {
+            for (var y = 0; y < map[x].length; y++) {
+                if (map[x][y] === false) {
+                    str += "##";
+                } else if (map[x][y] === true) {
+                    str += "  ";
+                } else {
+                    str += map[x][y].key();
+                }
+            }
+            str += '\n';
+        }
+        console.log(str);
+    }
+
+    function Environment(state) {
+        this._graph = new Graph({ directed: false, compound: false, multigraph: true });
+        this._heroes = this._parseHeroes(state.game.heroes);
+        this._map = this._parseMap(state.game.board);
+        this._me = this._heroes["@" + state.hero.id];
+    }
+
+    Environment.prototype.map = function () {
+        return this._map;
+    };
+
+    Environment.prototype.heroes = function (key) {
+        if (key) {
+            return this._heroes[key];
+        } else {
+            return this._heroes;
+        }
+    };
+
+    Environment.prototype.updateHeroes = function (heroes) {
+        for (var i = 0; i < heroes.length; i++) {
+            if (!(_.isEqual(heroes[i].pos, this._heroes["@" + heroes[i].id].pos))) {
+                var pos = this._heroes["@" + heroes[i].id].pos;
+                this._map[pos.x][pos.y] = true;
+                this._map[heroes[i].pos.x][heroes[i].pos.y] = this._heroes["@" + heroes[i].id];
+            }
+        }
+    };
+
+    Environment.prototype._parseHeroes = function (heroes) {
         var _heroes = {};
         for (var i = 0; i < heroes.length; i++) {
             _heroes["@" + heroes[i].id] = new Hero(heroes[i]);
         }
         return _heroes;
-    }
+    };
 
-    /**
-     * Creates  a traversal map for the bot where valid moves are not false
-     * @param board
-     * @returns {Array}
-     */
-    function mapParser(board, heroes) {
+    Environment.prototype._parseMap = function (board) {
         var _map = [],
             _size = board.size * 2,
             _legend = {
@@ -49,23 +90,25 @@ module.exports = (function () {
 
             for (var j = 0; j < line.length; j += 2) {
                 var legend = _legend[line.slice(j, j + 2)];
-                parsed.push(processLegend(legend, i, j, heroes));
+                parsed.push(this._processLegend(legend, j / 2, i));
             }
 
             __map.push(line);
             _map.push(parsed);
         }
-        //console.log(__map);
-        //console.log(_map);
-        //console.log(heroes);
 
-        printMap(_map);
+        if (DEBUG) {
+            printMap(_map);
+            console.log(this._graph.edges());
+        }
 
         return _map;
-    }
+    };
 
-    function processLegend(legend, x, y, heroes) {
-        var key;
+    Environment.prototype._processLegend = function (legend, x, y) {
+        var key,
+            heroes = this._heroes;
+
         switch (legend.type) {
             case "hero":
                 key = heroes[legend.key];
@@ -79,9 +122,11 @@ module.exports = (function () {
                 break;
             case "tavern":
                 key = new Tavern({x: x, y: y});
+                this._addToGraph(x,y , key);
                 break;
             case "space":
                 key = true;
+                this._addToGraph(x,y, {weight: 0.0});
                 break;
             case "wall":
                 key = false;
@@ -89,66 +134,34 @@ module.exports = (function () {
         }
 
         return key;
-    }
+    };
 
-    function printMap(map) {
-        var str = '';
-        for (var x = 0; x < map.length; x++) {
-            for (var y = 0; y < map[x].length; y++) {
-                if (map[x][y] === false) {
-                    str += "##";
-                } else if (map[x][y] === true) {
-                    str += "  ";
-                } else {
-                    str += map[x][y].key();
-                }
-            }
-            str += '\n';
+    Environment.prototype._addToGraph = function (x, y, label) {
+        var graph = this._graph;
+
+        current = x + ":" + y;
+        var prevRow = x + ":" + (y - 1);
+
+        graph.setNode(current, label);
+
+        // previous is not diag
+        if (graph.node(previous) && previous.split(":")[1] == y) {
+            graph.setEdge(current, previous);
         }
-        console.log(str);
-    }
 
-    function Environment(state) {
-        this._heroes = heroParser(state.game.heroes);
-        this._map = mapParser(state.game.board, this._heroes);
-        this._me = this._heroes["@" + state.hero.id];
-    }
-
-    Environment.prototype.map = function () {
-        return this._map;
-    };
-
-    Environment.prototype.heroes = function (key) {
-        if (key) {
-            return this._heroes[key];
-        } else {
-            return this._heroes;
+        if (graph.node(prevRow)) {
+            graph.setEdge(current, prevRow);
         }
-    };
 
-    Environment.prototype.hero = function () {
-        return this._me;
-    };
-
-    Environment.prototype.updateHeroes = function (heroes) {
-        for (var i = 0; i < heroes.length; i++) {
-            if (!(_.isEqual(heroes[i].pos, this._heroes["@" + heroes[i].id].pos))) {
-                var pos = this._heroes["@" + heroes[i].id].pos;
-                this._map[pos.x][pos.y] = true;
-                this._map[heroes[i].pos.x][heroes[i].pos.y] = this._heroes["@" + heroes[i].id];
-                //console.log("NEED UPDATE");
-            }
-        }
-    };
-
-    Environment.prototype.updateBoard = function (board) {
-
+        previous = current;
     };
 
     Environment.prototype.update = function (state) {
         this.updateHeroes(state.game.heroes);
-        this.updateBoard(state.game.board);
-        printMap(this._map);
+        //this.updateBoard(state.game.board);
+        if (DEBUG) {
+            printMap(this._map);
+        }
     };
 
     return Environment;
